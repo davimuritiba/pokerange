@@ -1,0 +1,564 @@
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main { flex: 1; }
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+.logo,
+.hero-title {
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-weight: 400;
+  color: var(--accent-2);
+  /* contorno e sombra "em blocos", no estilo pixel art */
+  text-shadow:
+    0.06em 0 0 var(--poke-blue),
+    -0.06em 0 0 var(--poke-blue),
+    0 0.06em 0 var(--poke-blue),
+    0 -0.06em 0 var(--poke-blue),
+    0.12em 0.12em 0 var(--poke-blue-dark);
+}
+.logo {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.mode-badge {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+/* Home */
+.home {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.hero-title {
+  margin: 0;
+  font-size: clamp(1.7rem, 8vw, 4.5rem);
+  line-height: 1.3;
+}
+.tagline {
+  font-size: 1.15rem;
+  color: var(--muted);
+  margin: 24px 0 40px;
+}
+.modes {
+  width: 100%;
+  max-width: 640px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.mode-card {
+  text-align: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mode-card:not(:disabled):hover { border-color: var(--accent); }
+.mode-card:disabled { cursor: not-allowed; opacity: 0.55; }
+.mode-title { font-size: 1.5rem; font-weight: 700; }
+.mode-desc { color: var(--muted); flex: 1; }
+.mode-cta { font-weight: 600; color: var(--accent); }
+.mode-cta--soon { color: var(--muted); }
+
+/* Fonte do Minecraft dentro dos cards */
+.mode-card,
+.poke-card {
+  font-family: 'Minecraftia', ui-monospace, monospace;
+  line-height: 1.9;
+}
+.mode-card .mode-title,
+.poke-card-name { font-weight: 400; }
+.mode-desc { font-size: 0.8rem; }
+
+/* Panels */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+}
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* Game */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.game-header strong { color: var(--text); }
+
+.target { text-align: center; margin: 28px 0 24px; }
+.target-number {
+  margin: 4px 0 0;
+  font-size: clamp(3.5rem, 14vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-2);
+}
+
+.range-tag {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Setup (filtros) */
+.setup { text-align: center; }
+.setup-title { margin: 6px 0 24px; font-size: 1.4rem; }
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  font-family: 'Minecraftia', ui-monospace, monospace;
+  line-height: 1.9;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.filter:hover { border-color: var(--muted); }
+.filter--active,
+.filter--active:hover { border-color: var(--accent); }
+.filter-label { font-size: 1.05rem; }
+.filter--active .filter-label { color: var(--accent); }
+.filter-range { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.custom-range {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+.custom-inputs {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 460px;
+}
+.number-field { display: flex; align-items: center; gap: 10px; }
+.number-field input {
+  width: 90px;
+  padding: 10px;
+  font: inherit;
+  font-size: 1rem;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+}
+.number-field input:focus { border-color: var(--accent); }
+
+/* Painéis que abrem/fecham na tela de filtros (altura animada) */
+.setup-panel { overflow: hidden; }
+
+.setup-title--section { margin-top: 36px; }
+
+/* Jogadores */
+.players-local {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.stepper { display: flex; align-items: center; gap: 16px; }
+.stepper-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 1.3rem;
+  line-height: 1;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.stepper-btn:not(:disabled):hover { border-color: var(--accent); }
+.stepper-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.stepper-value {
+  min-width: 130px;
+  font-family: 'Minecraftia', ui-monospace, monospace;
+  line-height: 1.9;
+}
+.players-hint { margin: 0; max-width: 420px; font-size: 0.85rem; color: var(--muted); }
+.player-list {
+  width: 100%;
+  max-width: 420px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.player-list li { display: flex; align-items: center; gap: 10px; }
+.player-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.player-list input {
+  flex: 1;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+}
+.player-list input:focus { border-color: var(--accent); }
+
+/* Seleção de gerações */
+.generations {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.generation-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.generation {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 8px;
+  font-family: 'Minecraftia', ui-monospace, monospace;
+  line-height: 1.8;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.generation:hover { border-color: var(--muted); }
+.generation--active,
+.generation--active:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+}
+.generation-label { font-size: 0.95rem; }
+.generation--active .generation-label { color: var(--accent); }
+.generation-range { font-size: 0.65rem; color: var(--muted); }
+.generation-actions { display: flex; gap: 20px; }
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link-btn:hover { color: var(--text); }
+
+/* Barra única com dois pontos */
+.dual-slider {
+  --thumb: 20px;
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  height: 28px;
+  margin: 6px 0 4px;
+  padding: 0 calc(var(--thumb) / 2);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+.dual-slider-track {
+  position: relative;
+  top: 50%;
+  height: 6px;
+  transform: translateY(-50%);
+  background: var(--border);
+  border-radius: 999px;
+}
+.dual-slider-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.dual-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: var(--thumb);
+  height: var(--thumb);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: grab;
+  outline: none;
+}
+.dual-slider-thumb:focus-visible { box-shadow: 0 0 0 3px var(--accent); }
+.hint { margin: 0; color: var(--danger); font-size: 0.9rem; }
+.search-hint { margin-top: 8px; text-align: left; }
+.setup-start { margin-top: 28px; min-width: 200px; }
+
+.target-pokemon {
+  width: min(240px, 60vw);
+  aspect-ratio: 1;
+  margin: 12px auto 0;
+  display: grid;
+  place-items: center;
+}
+.target-pokemon img { width: 100%; height: 100%; object-fit: contain; }
+.target-name {
+  margin: 4px 0 0;
+  font-family: 'Minecraftia', ui-monospace, monospace;
+  font-size: 1.5rem;
+  color: var(--accent-2);
+}
+
+/* Placar multijogador */
+.scoreboard {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.score-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+.score-chip--active { background: color-mix(in srgb, var(--surface-2) 80%, white 4%); }
+.score-chip-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-chip strong { font-variant-numeric: tabular-nums; }
+.score-chip-check { color: var(--good); font-weight: 700; }
+.turn-banner {
+  margin: 0 0 12px;
+  text-align: center;
+  font-family: 'Minecraftia', ui-monospace, monospace;
+  font-size: 1.2rem;
+  line-height: 1.9;
+}
+
+/* Resultado da rodada com vários jogadores */
+.reveal-party {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 200px) 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.round-ranking {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.round-ranking li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  border-radius: 12px;
+  text-align: left;
+}
+.round-ranking-player { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.round-ranking-verdict { font-size: 0.8rem; color: var(--muted); }
+.round-ranking-guess { font-size: 0.9rem; }
+.round-ranking-guess small { color: var(--muted); }
+.round-ranking-points {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--good);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fim de jogo com vários jogadores */
+.summary-winner { margin: 6px 0 20px; font-size: 2rem; font-weight: 800; color: var(--accent); }
+.final-ranking {
+  max-width: 420px;
+  margin: 0 auto 24px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.final-ranking li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  border-radius: 12px;
+}
+.final-ranking--winner { box-shadow: 0 0 0 1px var(--accent); }
+.final-ranking-position { width: 28px; color: var(--muted); font-weight: 700; }
+.final-ranking-name { flex: 1; text-align: left; }
+.final-ranking-total { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.table-scroll { overflow-x: auto; margin-bottom: 24px; }
+.table-scroll .summary-table { margin-bottom: 0; }
+.cell-guess { display: block; font-size: 0.75rem; }
+
+/* Search */
+.search { display: flex; gap: 10px; }
+.search-field { position: relative; flex: 1; }
+.search input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1.05rem;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+}
+.search input:focus { border-color: var(--accent); }
+.suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+.suggestions li { padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.suggestions li.active { background: var(--border); }
+
+/* Buttons */
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s, transform 0.1s;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:not(:disabled):active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:not(:disabled):hover { filter: brightness(1.1); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); }
+
+/* Reveal */
+.reveal { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.reveal-score { text-align: center; }
+.verdict { margin: 0; font-size: 1.3rem; font-weight: 700; }
+.points { margin: 0; font-size: 2.6rem; font-weight: 800; color: var(--good); line-height: 1.1; }
+.distance { margin: 0; color: var(--muted); }
+.reveal-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.poke-card {
+  margin: 0;
+  padding: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+}
+.poke-card--target { border-color: var(--accent-2); }
+.poke-card-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.poke-card-art { aspect-ratio: 1; display: grid; place-items: center; }
+.poke-card-art img { width: 100%; height: 100%; object-fit: contain; }
+.poke-card-placeholder { font-size: 2rem; color: var(--muted); }
+.poke-card figcaption { display: flex; flex-direction: column; }
+.poke-card-number { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+.poke-card-name { font-weight: 700; font-size: 1.1rem; }
+
+/* Summary */
+.summary { text-align: center; }
+.summary-score { margin: 6px 0 24px; font-size: 3rem; font-weight: 800; color: var(--accent-2); }
+.summary-score span { font-size: 1.2rem; color: var(--muted); font-weight: 600; }
+.summary-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-variant-numeric: tabular-nums; }
+.summary-table th, .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+.summary-table th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.summary-table small { color: var(--muted); }
+.actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.error { color: var(--danger); text-align: center; }
+
+.footer { margin-top: 32px; text-align: center; font-size: 0.85rem; color: var(--muted); }
+.footer a { color: inherit; }
+
+@media (max-width: 520px) {
+  .reveal-party { grid-template-columns: 1fr; justify-items: center; }
+  .reveal-party .poke-card { width: 200px; }
+  .panel { padding: 20px 16px; }
+  .search { flex-direction: column; }
+  .reveal-cards { gap: 10px; }
+  .summary-table { font-size: 0.85rem; }
+  .summary-table th:nth-child(4), .summary-table td:nth-child(4) { display: none; }
+}
