@@ -1,75 +1,72 @@
-# React + TypeScript + Vite
+# Pokerange 🎮
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Um jogo divertido de adivinhação baseado em Pokémon!
 
-Currently, two official plugins are available:
+## Como Funciona
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Objetivo
 
-## React Compiler
+Adivinhar qual Pokémon corresponde a um número da Pokédex, ou vice-versa, e ganhar o máximo de pontos possível.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Modos de Jogo
 
-## Expanding the ESLint configuration
+#### Clássico
+- Um número é sorteado
+- Você chuta qual Pokémon ele representa
+- Quanto mais próximo do Pokémon correto, mais pontos você ganha
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+#### Invertido
+- Um Pokémon é sorteado
+- Você chuta o número dele na Pokédex
+- Quanto mais próximo do número correto, mais pontos você ganha
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Rodadas
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Cada partida tem **5 rodadas**
+- Em cada rodada, um novo número/Pokémon é sorteado
+- Você tem que adivinhar corretamente para ganhar pontos
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Sistema de Pontos
 
-```
+- **Máximo por rodada:** 1.000 pontos
+- **Acerto exato (#0):** Na mosca! (1.000 pontos)
+- **Muito próximo (≥800 pontos):** Quase perfeito!
+- **Próximo (≥500 pontos):** Muito perto!
+- **Razoável (≥200 pontos):** Nada mal!
+- **Longe (≥50 pontos):** Passou longe...
+- **Muito longe (<50 pontos):** Muito longe!
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Os pontos são calculados de forma exponencial, considerando o tamanho do intervalo escolhido. Intervalos menores (como Gen 1) exigem mais precisão!
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Filtros
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Antes de começar, escolha qual intervalo da Pokédex quer jogar:
 
-```
+- **Todas:** Pokédex completa (#0001–#1025)
+- **Geração Específica:** Jogue apenas com Pokémon de uma geração (Gen 1, Gen 2, etc.)
+- **Múltiplas Gerações:** Combine várias gerações
+- **Personalizado:** Escolha um intervalo específico de números
+
+O intervalo deve ter pelo menos 5 Pokémon diferentes.
+
+### Multiplicadores
+
+Quanto **menor** o intervalo, **mais pontos** você ganha por acertos próximos. Por isso, jogar apenas com Gen 1 é mais desafiador que a Pokédex completa!
+
+### Multiplayer
+
+- Jogue **sozinho** ou com **vários jogadores**
+- Em multiplayer, cada jogador chuta na sua vez
+- Os pontos só aparecem após a rodada ser revelada (para não darem dicas!)
+- Placar é atualizado a cada rodada
+
+## Começando
+
+1. Clique em um modo de jogo (Clássico ou Invertido)
+2. Escolha um filtro de Pokémon
+3. Digite seu nome (opcional)
+4. Vença com inteligência e conhecimento Pokémon! 🏆
+
+---
+
+**Dados de** [PokéAPI](https://pokeapi.co)
