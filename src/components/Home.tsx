@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import type { GameMode } from "../game/modes";
+import { useI18n } from "../i18n/context";
 import { bouncy, fadeUp, spring, stagger } from "../lib/motion";
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function Home({ onSelect, ready }: Props) {
+  const { t } = useI18n();
   return (
     <section className="home">
       <motion.h1
@@ -24,7 +26,7 @@ export function Home({ onSelect, ready }: Props) {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.25 }}
       >
-        Quão bem você conhece a Pokédex?
+        {t.tagline}
       </motion.p>
       <motion.div
         className="modes"
@@ -40,14 +42,9 @@ export function Home({ onSelect, ready }: Props) {
           onClick={() => onSelect("classic")}
           disabled={!ready}
         >
-          <span className="mode-title">Clássico</span>
-          <span className="mode-desc">
-            Um número aparece na tela. Chute o Pokémon com o número mais próximo
-            possível.
-          </span>
-          <span className="mode-cta">
-            {ready ? "Jogar" : "Carregando Pokédex…"}
-          </span>
+          <span className="mode-title">{t.modes.classic}</span>
+          <span className="mode-desc">{t.modeDescriptions.classic}</span>
+          <span className="mode-cta">{ready ? t.play : t.loadingPokedex}</span>
         </motion.button>
         <motion.button
           className="mode-card"
@@ -57,13 +54,9 @@ export function Home({ onSelect, ready }: Props) {
           onClick={() => onSelect("inverted")}
           disabled={!ready}
         >
-          <span className="mode-title">Invertido</span>
-          <span className="mode-desc">
-            Um Pokémon aparece na tela. Chute o número dele na Pokédex.
-          </span>
-          <span className="mode-cta">
-            {ready ? "Jogar" : "Carregando Pokédex…"}
-          </span>
+          <span className="mode-title">{t.modes.inverted}</span>
+          <span className="mode-desc">{t.modeDescriptions.inverted}</span>
+          <span className="mode-cta">{ready ? t.play : t.loadingPokedex}</span>
         </motion.button>
       </motion.div>
     </section>

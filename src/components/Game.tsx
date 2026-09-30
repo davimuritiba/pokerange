@@ -11,6 +11,7 @@ import { MAX_POINTS, ROUNDS_PER_GAME, scoreForDistance, verdictFor } from '../ga
 import { describeRange, drawTargets, inRange, rangeSize, type DexRange } from '../game/ranges'
 import type { GameMode } from '../game/modes'
 import type { Player } from '../game/players'
+import { useI18n } from '../i18n/context'
 import { bouncy, fadeUp, page, spring, stagger } from '../lib/motion'
 import { AnimatedNumber } from './AnimatedNumber'
 import { NumberGuess } from './NumberGuess'
@@ -41,7 +42,15 @@ interface Guess {
 
 type Phase = 'guessing' | 'revealed' | 'finished'
 
+/** Nome do jogador; quem não digitou nome vira "Jogador 2" / "Player 2". */
+function usePlayerName() {
+  const { t } = useI18n()
+  return (p: Player) => p.name || t.defaultPlayer(p.id)
+}
+
 export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: Props) {
+  const { t } = useI18n()
+  const nameOf = usePlayerName()
   const [targets, setTargets] = useState(() => drawTargets(range, ROUNDS_PER_GAME))
   const [round, setRound] = useState(0)
   const [turn, setTurn] = useState(0)
@@ -50,7 +59,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
   const [results, setResults] = useState<Guess[][]>([])
   const [targetPokemon, setTargetPokemon] = useState<Pokemon | null>(null)
   const [guessPokemon, setGuessPokemon] = useState<Pokemon | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   const solo = players.length === 1
   const target = targets[round]
@@ -73,7 +82,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
     let cancelled = false
     fetchPokemon(target)
       .then((p) => !cancelled && setTargetPokemon(p))
-      .catch(() => !cancelled && setError('Não foi possível carregar o Pokémon da rodada.'))
+      .catch(() => !cancelled && setLoadFailed(true))
     return () => {
       cancelled = true
     }
@@ -120,7 +129,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
     setRound(round + 1)
     setTurn(0)
     setPhase('guessing')
-    setError(null)
+    setLoadFailed(false)
   }
 
   function restart() {
@@ -129,7 +138,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
     setTurn(0)
     setResults([])
     setPhase('guessing')
-    setError(null)
+    setLoadFailed(false)
   }
 
   if (phase === 'finished') {
@@ -169,21 +178,21 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
     <motion.section className="panel game" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <header className="game-header">
         <span>
-          Rodada <strong>{round + 1}</strong> de {ROUNDS_PER_GAME}
+          {t.round} <strong>{round + 1}</strong> {t.of} {ROUNDS_PER_GAME}
         </span>
         <span className="range-tag">
-          {range.label}
+          {t.rangeLabel(range.label)}
           {range.segments.length === 1 && ` · ${describeRange(range)}`}
         </span>
         {solo ? (
           <span>
-            Pontos{' '}
+            {t.points}{' '}
             <strong>
               <AnimatedNumber value={totals[0]} duration={0.6} />
             </strong>
           </span>
         ) : (
-          <span>{players.length} jogadores</span>
+          <span>{t.playerCount(players.length)}</span>
         )}
       </header>
 
@@ -201,12 +210,12 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
                 transition={spring}
               >
                 <span className="player-dot" style={{ background: p.color }} />
-                <span className="score-chip-name">{p.name}</span>
+                <span className="score-chip-name">{nameOf(p)}</span>
                 <strong>
                   <AnimatedNumber value={totals[i]} duration={0.6} />
                 </strong>
                 {done && (
-                  <span className="score-chip-check" aria-label="já chutou">
+                  <span className="score-chip-check" aria-label={t.alreadyGuessed}>
                     ✓
                   </span>
                 )}
@@ -218,7 +227,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
 
       {mode === 'classic' && (
         <div className="target">
-          <p className="eyebrow">Encontre o Pokémon mais próximo de</p>
+          <p className="eyebrow">{t.findClosest}</p>
           <AnimatePresence mode="wait" initial={false}>
             <motion.p
               key={round}
@@ -244,7 +253,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
           >
             {mode === 'inverted' && (
               <div className="target">
-                <p className="eyebrow">Qual é o número deste Pokémon?</p>
+                <p className="eyebrow">{t.whichNumber}</p>
                 <div className="target-pokemon">
                   {answer?.image ? (
                     <motion.img
@@ -259,7 +268,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
                     <div className="poke-card-placeholder">{answer ? '?' : '…'}</div>
                   )}
                 </div>
-                <p className="target-name">{answer ? formatName(answer.name) : 'Carregando…'}</p>
+                <p className="target-name">{answer ? formatName(answer.name) : t.loading}</p>
               </div>
             )}
 
@@ -273,7 +282,8 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
               >
                 {!solo && (
                   <p className="turn-banner">
-                    Vez de <span style={{ color: currentPlayer.color }}>{currentPlayer.name}</span>
+                    {t.turnOf}{' '}
+                    <span style={{ color: currentPlayer.color }}>{nameOf(currentPlayer)}</span>
                   </p>
                 )}
                 {mode === 'classic' ? (
@@ -288,7 +298,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
                 )}
               </motion.div>
             </AnimatePresence>
-            {error && <p className="error">{error}</p>}
+            {loadFailed && <p className="error">{t.errors.round}</p>}
           </motion.div>
         ) : soloGuess ? (
           <motion.div
@@ -310,26 +320,27 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
                 }
                 transition={perfect ? { duration: 0.6 } : bouncy}
               >
-                {verdictFor(soloGuess.distance, soloGuess.points)}
+                {t.verdicts[verdictFor(soloGuess.distance, soloGuess.points)]}
               </motion.p>
               <p className="points">
                 <AnimatedNumber value={soloGuess.points} prefix="+" delay={0.15} />
               </p>
               <p className="distance">
-                {soloGuess.distance === 0
-                  ? 'Você acertou o número exato'
-                  : `${soloGuess.distance} de distância`}
+                {soloGuess.distance === 0 ? t.exactHit : t.distanceAway(soloGuess.distance)}
               </p>
               {mode === 'inverted' && answer && (
                 <p className="distance">
-                  {formatName(answer.name)} é o {formatNumber(answer.id)} · você chutou{' '}
-                  {formatNumber(soloGuess.guess.id)}
+                  {t.invertedRecap(
+                    formatName(answer.name),
+                    formatNumber(answer.id),
+                    formatNumber(soloGuess.guess.id),
+                  )}
                 </p>
               )}
             </div>
             <div className="reveal-cards">
-              <PokemonCard label="Seu chute" pokemon={guessPokemon} from="left" />
-              <PokemonCard label="Resposta" pokemon={answer} highlight from="right" delay={0.15} />
+              <PokemonCard label={t.yourGuess} pokemon={guessPokemon} from="left" />
+              <PokemonCard label={t.answer} pokemon={answer} highlight from="right" delay={0.15} />
             </div>
             <NextButton last={round + 1 >= ROUNDS_PER_GAME} onClick={nextRound} />
           </motion.div>
@@ -343,7 +354,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
             exit="exit"
           >
             <div className="reveal-party">
-              <PokemonCard label="Resposta" pokemon={answer} highlight from="left" />
+              <PokemonCard label={t.answer} pokemon={answer} highlight from="left" />
               <RoundRanking mode={mode} players={players} guesses={roundGuesses} />
             </div>
             <NextButton last={round + 1 >= ROUNDS_PER_GAME} onClick={nextRound} />
@@ -355,6 +366,7 @@ export function Game({ mode, pokedex, range, players, onChangeFilter, onExit }: 
 }
 
 function NextButton({ last, onClick }: { last: boolean; onClick: () => void }) {
+  const { t } = useI18n()
   return (
     <motion.button
       className="btn btn-primary"
@@ -364,7 +376,7 @@ function NextButton({ last, onClick }: { last: boolean; onClick: () => void }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...spring, delay: 0.35 }}
     >
-      {last ? 'Ver resultado' : 'Próxima rodada'}
+      {last ? t.seeResults : t.nextRound}
     </motion.button>
   )
 }
@@ -377,6 +389,8 @@ interface RoundRankingProps {
 
 /** Palpites de todos na rodada, do mais perto ao mais longe. */
 function RoundRanking({ mode, players, guesses }: RoundRankingProps) {
+  const { t } = useI18n()
+  const nameOf = usePlayerName()
   const sorted = [...guesses].sort((a, b) => b.points - a.points)
   return (
     <motion.ol
@@ -391,8 +405,10 @@ function RoundRanking({ mode, players, guesses }: RoundRankingProps) {
           <motion.li key={g.playerId} variants={fadeUp} style={{ borderLeftColor: player.color }}>
             <div className="round-ranking-info">
               <div className="round-ranking-player">
-                <strong style={{ color: player.color }}>{player.name}</strong>
-                <span className="round-ranking-verdict">{verdictFor(g.distance, g.points)}</span>
+                <strong style={{ color: player.color }}>{nameOf(player)}</strong>
+                <span className="round-ranking-verdict">
+                  {t.verdicts[verdictFor(g.distance, g.points)]}
+                </span>
               </div>
               <div className="round-ranking-guess">
                 {mode === 'classic' ? (
@@ -401,10 +417,11 @@ function RoundRanking({ mode, players, guesses }: RoundRankingProps) {
                   </>
                 ) : (
                   <>
-                    Chutou {formatNumber(g.guess.id)} <small>({formatName(g.guess.name)})</small>
+                    {t.guessedNumber(formatNumber(g.guess.id))}{' '}
+                    <small>({formatName(g.guess.name)})</small>
                   </>
                 )}
-                <small> · {g.distance === 0 ? 'exato!' : `${g.distance} de distância`}</small>
+                <small> · {g.distance === 0 ? t.exact : t.distanceAway(g.distance)}</small>
               </div>
             </div>
             <span className="round-ranking-points">
@@ -424,16 +441,17 @@ interface SummaryActionsProps {
 }
 
 function SummaryActions({ onRestart, onChangeFilter, onExit }: SummaryActionsProps) {
+  const { t } = useI18n()
   return (
     <motion.div className="actions" variants={fadeUp}>
       <button className="btn btn-primary" onClick={onRestart}>
-        Jogar novamente
+        {t.playAgain}
       </button>
       <button className="btn btn-ghost" onClick={onChangeFilter}>
-        Trocar filtro
+        {t.changeFilter}
       </button>
       <button className="btn btn-ghost" onClick={onExit}>
-        Menu inicial
+        {t.mainMenu}
       </button>
     </motion.div>
   )
@@ -457,6 +475,7 @@ function SoloSummary({
   targetName,
   ...actions
 }: SoloSummaryProps) {
+  const { t } = useI18n()
   const max = MAX_POINTS * ROUNDS_PER_GAME
   return (
     <motion.section
@@ -466,20 +485,20 @@ function SoloSummary({
       animate="animate"
     >
       <motion.p className="eyebrow" variants={fadeUp}>
-        Fim de jogo · {range.label}
+        {t.gameOver} · {t.rangeLabel(range.label)}
       </motion.p>
       <motion.h2 className="summary-score" variants={fadeUp}>
         <AnimatedNumber value={total} duration={1.2} delay={0.2} />
-        <span> / {max.toLocaleString('pt-BR')}</span>
+        <span> / {max.toLocaleString(t.locale)}</span>
       </motion.h2>
       <motion.table className="summary-table" variants={fadeUp}>
         <thead>
           <tr>
-            <th>Rodada</th>
-            <th>{mode === 'classic' ? 'Número' : 'Pokémon'}</th>
-            <th>Seu chute</th>
-            <th>Distância</th>
-            <th>Pontos</th>
+            <th>{t.round}</th>
+            <th>{mode === 'classic' ? t.number : t.pokemon}</th>
+            <th>{t.yourGuess}</th>
+            <th>{t.distance}</th>
+            <th>{t.points}</th>
           </tr>
         </thead>
         <motion.tbody variants={stagger(0.08, 0.3)}>
@@ -532,13 +551,14 @@ function PartySummary({
   targetName,
   ...actions
 }: PartySummaryProps) {
+  const { t } = useI18n()
+  const nameOf = usePlayerName()
   const ranking = players
     .map((p, i) => ({ player: p, total: totals[i] }))
     .sort((a, b) => b.total - a.total)
   const best = ranking[0].total
-  const winners = ranking.filter((r) => r.total === best).map((r) => r.player.name)
-  const title =
-    winners.length === 1 ? `${winners[0]} venceu!` : `Empate entre ${winners.join(' e ')}!`
+  const winners = ranking.filter((r) => r.total === best).map((r) => nameOf(r.player))
+  const title = winners.length === 1 ? t.winner(winners[0]) : t.tie(winners)
 
   return (
     <motion.section
@@ -548,7 +568,7 @@ function PartySummary({
       animate="animate"
     >
       <motion.p className="eyebrow" variants={fadeUp}>
-        Fim de jogo · {range.label}
+        {t.gameOver} · {t.rangeLabel(range.label)}
       </motion.p>
       <motion.h2
         className="summary-winner"
@@ -568,10 +588,10 @@ function PartySummary({
             style={{ borderLeftColor: r.player.color }}
           >
             <span className="final-ranking-position">
-              {ranking.findIndex((x) => x.total === r.total) + 1}º
+              {t.ordinal(ranking.findIndex((x) => x.total === r.total) + 1)}
             </span>
             <strong className="final-ranking-name" style={{ color: r.player.color }}>
-              {r.player.name}
+              {nameOf(r.player)}
             </strong>
             <span className="final-ranking-total">
               <AnimatedNumber value={r.total} duration={1.2} delay={0.4} />
@@ -584,11 +604,11 @@ function PartySummary({
         <table className="summary-table">
           <thead>
             <tr>
-              <th>Rodada</th>
-              <th>{mode === 'classic' ? 'Número' : 'Pokémon'}</th>
+              <th>{t.round}</th>
+              <th>{mode === 'classic' ? t.number : t.pokemon}</th>
               {players.map((p) => (
                 <th key={p.id} style={{ color: p.color }}>
-                  {p.name}
+                  {nameOf(p)}
                 </th>
               ))}
             </tr>

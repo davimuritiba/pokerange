@@ -1,5 +1,6 @@
 import { motion } from 'motion/react'
 import { formatName, formatNumber, type Pokemon } from '../api/pokeapi'
+import { useI18n } from '../i18n/context'
 import { bouncy, spring } from '../lib/motion'
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function PokemonCard({ label, pokemon, highlight, from = 'left', delay = 0 }: Props) {
+  const { t } = useI18n()
   return (
     <motion.figure
       className={`poke-card${highlight ? ' poke-card--target' : ''}`}
@@ -36,7 +38,7 @@ export function PokemonCard({ label, pokemon, highlight, from = 'left', delay = 
       </div>
       <figcaption>
         <span className="poke-card-number">{pokemon ? formatNumber(pokemon.id) : '—'}</span>
-        <span className="poke-card-name">{pokemon ? formatName(pokemon.name) : 'Carregando'}</span>
+        <span className="poke-card-name">{pokemon ? formatName(pokemon.name) : t.loading}</span>
       </figcaption>
     </motion.figure>
   )

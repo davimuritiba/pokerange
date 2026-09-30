@@ -14,8 +14,35 @@ main { flex: 1; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
   margin-bottom: 32px;
 }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
+/* Alternador de idioma */
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.lang-switch button {
+  position: relative;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.lang-switch button.active { color: var(--on-accent); }
+.lang-pill { position: absolute; inset: 0; background: var(--accent); border-radius: 999px; }
+.lang-text { position: relative; }
 .logo,
 .hero-title {
   font-family: 'Press Start 2P', ui-monospace, monospace;
@@ -49,7 +76,7 @@ main { flex: 1; }
 
 /* Home */
 .home {
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 220px);
   display: flex;
   flex-direction: column;
   align-items: center;

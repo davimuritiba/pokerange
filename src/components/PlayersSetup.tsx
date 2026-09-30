@@ -1,11 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
-import {
-  defaultPlayerName,
-  MAX_PLAYERS,
-  MIN_PLAYERS,
-  PLAYER_COLORS,
-  type PlayMode,
-} from '../game/players'
+import { MAX_PLAYERS, MIN_PLAYERS, PLAYER_COLORS, type PlayMode } from '../game/players'
+import { useI18n } from '../i18n/context'
 import { collapse } from '../lib/motion'
 
 interface Props {
@@ -17,6 +12,7 @@ interface Props {
 
 /** Escolha de local/online, quantidade de jogadores e nomes. */
 export function PlayersSetup({ playMode, names, onPlayModeChange, onNamesChange }: Props) {
+  const { t } = useI18n()
   function setCount(count: number) {
     const next = names.slice(0, count)
     while (next.length < count) next.push('')
@@ -29,7 +25,7 @@ export function PlayersSetup({ playMode, names, onPlayModeChange, onNamesChange 
 
   return (
     <div className="players-setup">
-      <div className="filters" role="radiogroup" aria-label="Tipo de partida">
+      <div className="filters" role="radiogroup" aria-label={t.playTypeAria}>
         <motion.button
           type="button"
           role="radio"
@@ -38,12 +34,12 @@ export function PlayersSetup({ playMode, names, onPlayModeChange, onNamesChange 
           whileTap={{ scale: 0.96 }}
           onClick={() => onPlayModeChange('local')}
         >
-          <span className="filter-label">Local</span>
-          <span className="filter-range">Todos no mesmo aparelho</span>
+          <span className="filter-label">{t.local}</span>
+          <span className="filter-range">{t.localDetail}</span>
         </motion.button>
         <button type="button" role="radio" aria-checked={false} className="filter" disabled>
-          <span className="filter-label">Online</span>
-          <span className="filter-range">Em breve · criar salas</span>
+          <span className="filter-label">{t.online}</span>
+          <span className="filter-range">{t.onlineDetail}</span>
         </button>
       </div>
 
@@ -58,36 +54,31 @@ export function PlayersSetup({ playMode, names, onPlayModeChange, onNamesChange 
             exit="exit"
           >
             <div className="players-local">
-              <div className="stepper" role="group" aria-label="Quantidade de jogadores">
+              <div className="stepper" role="group" aria-label={t.playerCountAria}>
                 <button
                   type="button"
                   className="stepper-btn"
                   onClick={() => setCount(names.length - 1)}
                   disabled={names.length <= MIN_PLAYERS}
-                  aria-label="Menos jogadores"
+                  aria-label={t.fewerPlayers}
                 >
                   −
                 </button>
                 <span className="stepper-value" aria-live="polite">
-                  {names.length} {names.length === 1 ? 'jogador' : 'jogadores'}
+                  {t.playerCount(names.length)}
                 </span>
                 <button
                   type="button"
                   className="stepper-btn"
                   onClick={() => setCount(names.length + 1)}
                   disabled={names.length >= MAX_PLAYERS}
-                  aria-label="Mais jogadores"
+                  aria-label={t.morePlayers}
                 >
                   +
                 </button>
               </div>
 
-              {names.length > 1 && (
-                <p className="players-hint">
-                  Cada jogador dá seu palpite na sua vez. As respostas só aparecem quando todos
-                  tiverem chutado.
-                </p>
-              )}
+              {names.length > 1 && <p className="players-hint">{t.playersHint}</p>}
 
               <ul className="player-list">
                 <AnimatePresence initial={false}>
@@ -107,8 +98,8 @@ export function PlayersSetup({ playMode, names, onPlayModeChange, onNamesChange 
                         type="text"
                         value={name}
                         maxLength={16}
-                        placeholder={defaultPlayerName(i)}
-                        aria-label={`Nome do jogador ${i + 1}`}
+                        placeholder={t.defaultPlayer(i)}
+                        aria-label={t.playerNameAria(i)}
                         onChange={(e) => rename(i, e.target.value)}
                       />
                     </motion.li>

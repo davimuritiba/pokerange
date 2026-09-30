@@ -13,8 +13,19 @@ export interface DexSegment {
  */
 export interface DexRange {
   segments: DexSegment[]
-  label: string
+  label: RangeLabel
 }
+
+/** O que foi escolhido, para o texto ser montado no idioma atual. */
+export type RangeLabel =
+  { kind: 'all' } | { kind: 'custom' } | { kind: 'generations'; numbers: number[] }
+
+/** Problema no intervalo personalizado (o texto vem da tradução). */
+export type CustomRangeIssue =
+  | { code: 'empty' }
+  | { code: 'bounds'; max: number }
+  | { code: 'order' }
+  | { code: 'size'; min: number }
 
 export interface Generation extends DexSegment {
   number: number
@@ -36,11 +47,11 @@ export const GENERATIONS: Generation[] = [
 export const MIN_RANGE_SIZE = ROUNDS_PER_GAME
 
 export function allRange(dexSize: number): DexRange {
-  return { segments: [{ start: 1, end: dexSize }], label: 'Todas' }
+  return { segments: [{ start: 1, end: dexSize }], label: { kind: 'all' } }
 }
 
 export function customRange(start: number, end: number): DexRange {
-  return { segments: [{ start, end }], label: 'Personalizado' }
+  return { segments: [{ start, end }], label: { kind: 'custom' } }
 }
 
 /** Junta as gerações escolhidas; gerações vizinhas viram um trecho só. */
@@ -55,23 +66,19 @@ export function generationsRange(numbers: number[], dexSize: number): DexRange {
     if (last && last.end + 1 === gen.start) last.end = end
     else segments.push({ start: gen.start, end })
   }
-  return { segments, label: generationsLabel(sorted) }
+  return { segments, label: { kind: 'generations', numbers: sorted } }
 }
 
-export function generationsLabel(numbers: number[]): string {
-  if (numbers.length === 0) return '?'
-  if (numbers.length === GENERATIONS.length) return 'Todas as gerações'
-  return `Gen ${[...numbers].sort((a, b) => a - b).join(', ')}`
-}
-
-/** Retorna a mensagem de erro do intervalo personalizado, ou `null` se for válido. */
-export function customRangeError(start: number, end: number, dexSize: number): string | null {
-  if (!Number.isInteger(start) || !Number.isInteger(end)) return 'Preencha os dois números.'
-  if (start < 1 || end > dexSize) return `Use números entre 1 e ${dexSize}.`
-  if (start > end) return 'O início precisa ser menor que o fim.'
-  if (end - start + 1 < MIN_RANGE_SIZE) {
-    return `O intervalo precisa ter pelo menos ${MIN_RANGE_SIZE} Pokémon.`
-  }
+/** Retorna o problema do intervalo personalizado, ou `null` se for válido. */
+export function customRangeIssue(
+  start: number,
+  end: number,
+  dexSize: number,
+): CustomRangeIssue | null {
+  if (!Number.isInteger(start) || !Number.isInteger(end)) return { code: 'empty' }
+  if (start < 1 || end > dexSize) return { code: 'bounds', max: dexSize }
+  if (start > end) return { code: 'order' }
+  if (end - start + 1 < MIN_RANGE_SIZE) return { code: 'size', min: MIN_RANGE_SIZE }
   return null
 }
 

@@ -16,12 +16,14 @@ export function scoreForDistance(distance: number, rangeSize: number): number {
   return Math.round(MAX_POINTS * Math.exp(-distance / decay))
 }
 
+export type Verdict = 'perfect' | 'almost' | 'close' | 'notBad' | 'far' | 'veryFar'
+
 /** Baseado nos pontos, para valer igual em qualquer tamanho de intervalo. */
-export function verdictFor(distance: number, points: number): string {
-  if (distance === 0) return 'Na mosca!'
-  if (points >= 800) return 'Quase perfeito!'
-  if (points >= 500) return 'Muito perto!'
-  if (points >= 200) return 'Nada mal!'
-  if (points >= 50) return 'Passou longe...'
-  return 'Muito longe!'
+export function verdictFor(distance: number, points: number): Verdict {
+  if (distance === 0) return 'perfect'
+  if (points >= 800) return 'almost'
+  if (points >= 500) return 'close'
+  if (points >= 200) return 'notBad'
+  if (points >= 50) return 'far'
+  return 'veryFar'
 }

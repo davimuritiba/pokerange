@@ -4,15 +4,15 @@ import { formatNumber } from '../api/pokeapi'
 import {
   allRange,
   customRange,
-  customRangeError,
-  generationsLabel,
+  customRangeIssue,
   generationsRange,
   GENERATIONS,
   MIN_RANGE_SIZE,
   type DexRange,
 } from '../game/ranges'
-import { MODE_LABELS, type GameMode } from '../game/modes'
+import type { GameMode } from '../game/modes'
 import { buildPlayers, type Player, type PlayMode } from '../game/players'
+import { useI18n } from '../i18n/context'
 import { collapse, fadeUp, stagger } from '../lib/motion'
 import { PlayersSetup } from './PlayersSetup'
 
@@ -31,6 +31,7 @@ function toInt(value: string): number {
 }
 
 export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
+  const { t } = useI18n()
   const [selected, setSelected] = useState<FilterId>('all')
   const [generations, setGenerations] = useState<number[]>([1])
   const [customStart, setCustomStart] = useState('1')
@@ -40,8 +41,9 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
 
   const start = toInt(customStart)
   const end = toInt(customEnd)
-  const customError = customRangeError(start, end, dexSize)
-  const generationsError = generations.length === 0 ? 'Escolha pelo menos uma geração.' : null
+  const customIssue = customRangeIssue(start, end, dexSize)
+  const customError = customIssue ? t.customRangeIssue(customIssue) : null
+  const generationsError = generations.length === 0 ? t.pickOneGeneration : null
 
   let range: DexRange | null = null
   if (selected === 'all') range = allRange(dexSize)
@@ -54,24 +56,31 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
   }
 
   const filters: { id: FilterId; label: string; detail: string }[] = [
-    { id: 'all', label: 'Todas', detail: `${formatNumber(1)}–${formatNumber(dexSize)}` },
-    { id: 'generations', label: 'Geração', detail: generationsLabel(generations) },
+    { id: 'all', label: t.filterAll, detail: `${formatNumber(1)}–${formatNumber(dexSize)}` },
+    {
+      id: 'generations',
+      label: t.filterGenerations,
+      detail: t.rangeLabel({
+        kind: 'generations',
+        numbers: [...generations].sort((a, b) => a - b),
+      }),
+    },
     {
       id: 'custom',
-      label: 'Personalizado',
+      label: t.filterCustom,
       detail: customError ? '?' : `${formatNumber(start)}–${formatNumber(end)}`,
     },
   ]
 
   return (
     <section className="panel setup">
-      <p className="eyebrow">Modo {MODE_LABELS[mode].toLowerCase()}</p>
-      <h2 className="setup-title">Escolha os Pokémon da partida</h2>
+      <p className="eyebrow">{t.modeEyebrow(t.modes[mode])}</p>
+      <h2 className="setup-title">{t.choosePokemon}</h2>
 
       <motion.div
         className="filters"
         role="radiogroup"
-        aria-label="Filtro de Pokémon"
+        aria-label={t.filterAria}
         variants={stagger(0.06, 0.1)}
         initial="initial"
         animate="animate"
@@ -116,7 +125,7 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
                       className={`generation${active ? ' generation--active' : ''}`}
                       onClick={() => toggleGeneration(g.number)}
                     >
-                      <span className="generation-label">Gen {g.number}</span>
+                      <span className="generation-label">{t.generation(g.number)}</span>
                       <span className="generation-range">
                         {formatNumber(g.start)}–{formatNumber(Math.min(g.end, dexSize))}
                       </span>
@@ -130,10 +139,10 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
                   className="link-btn"
                   onClick={() => setGenerations(GENERATIONS.map((g) => g.number))}
                 >
-                  Marcar todas
+                  {t.selectAll}
                 </button>
                 <button type="button" className="link-btn" onClick={() => setGenerations([])}>
-                  Limpar
+                  {t.clear}
                 </button>
               </div>
               {generationsError && <p className="hint">{generationsError}</p>}
@@ -164,14 +173,14 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
               <div className="custom-inputs">
                 <NumberField
                   id="custom-start"
-                  label="De"
+                  label={t.from}
                   value={customStart}
                   dexSize={dexSize}
                   onChange={setCustomStart}
                 />
                 <NumberField
                   id="custom-end"
-                  label="Até"
+                  label={t.to}
                   value={customEnd}
                   dexSize={dexSize}
                   onChange={setCustomEnd}
@@ -183,7 +192,7 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
         )}
       </AnimatePresence>
 
-      <h2 className="setup-title setup-title--section">Jogadores</h2>
+      <h2 className="setup-title setup-title--section">{t.playersTitle}</h2>
       <PlayersSetup
         playMode={playMode}
         names={names}
@@ -196,7 +205,7 @@ export function GameSetup({ mode, dexSize, initialNames, onStart }: Props) {
         disabled={!range || playMode !== 'local'}
         onClick={() => range && onStart(range, buildPlayers(names))}
       >
-        Começar
+        {t.start}
       </button>
     </section>
   )
@@ -218,6 +227,7 @@ type Handle = 'start' | 'end'
  * do movimento decide qual ponto anda. Clicar na barra puxa o ponto mais próximo.
  */
 function DualRangeSlider({ min, max, start, end, onChange }: DualRangeSliderProps) {
+  const { t } = useI18n()
   const trackRef = useRef<HTMLDivElement>(null)
   const dragging = useRef<Handle | 'undecided' | null>(null)
 
@@ -308,7 +318,7 @@ function DualRangeSlider({ min, max, start, end, onChange }: DualRangeSliderProp
               style={{ left: `${pct(value)}%` }}
               role="slider"
               tabIndex={0}
-              aria-label={handle === 'start' ? 'Início do intervalo' : 'Fim do intervalo'}
+              aria-label={handle === 'start' ? t.rangeStart : t.rangeEnd}
               aria-valuemin={min}
               aria-valuemax={max}
               aria-valuenow={value}

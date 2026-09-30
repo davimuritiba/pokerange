@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { describeRange, inRange, type DexRange } from '../game/ranges'
+import { useI18n } from '../i18n/context'
 
 interface Props {
   range: DexRange
@@ -9,6 +10,7 @@ interface Props {
 
 /** Campo para chutar o número da Pokédex (modo invertido). */
 export function NumberGuess({ range, onSubmit, disabled }: Props) {
+  const { t } = useI18n()
   const [value, setValue] = useState('')
 
   const number = value.trim() === '' ? NaN : Number(value)
@@ -28,18 +30,18 @@ export function NumberGuess({ range, onSubmit, disabled }: Props) {
           type="number"
           inputMode="numeric"
           value={value}
-          placeholder="Digite o número da Pokédex..."
+          placeholder={t.numberPlaceholder}
           autoFocus
-          aria-label="Número da Pokédex"
+          aria-label={t.numberAria}
           aria-invalid={showError}
           onChange={(e) => setValue(e.target.value)}
         />
         {showError && (
-          <p className="hint search-hint">Chute um número dentro de {describeRange(range)}.</p>
+          <p className="hint search-hint">{t.numberOutOfRange(describeRange(range))}</p>
         )}
       </div>
       <button type="submit" className="btn btn-primary" disabled={!valid || disabled}>
-        Chutar
+        {t.guess}
       </button>
     </form>
   )

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useMemo, useState } from 'react'
 import { formatName, type PokemonEntry } from '../api/pokeapi'
+import { useI18n } from '../i18n/context'
 
 interface Props {
   pokedex: PokemonEntry[]
@@ -19,6 +20,7 @@ function normalize(text: string): string {
 }
 
 export function PokemonSearch({ pokedex, onSubmit, disabled }: Props) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<PokemonEntry | null>(null)
   const [highlight, setHighlight] = useState(0)
@@ -86,12 +88,12 @@ export function PokemonSearch({ pokedex, onSubmit, disabled }: Props) {
         <input
           type="text"
           value={query}
-          placeholder="Digite o nome de um Pokémon..."
+          placeholder={t.searchPlaceholder}
           autoFocus
           autoComplete="off"
           spellCheck={false}
           disabled={disabled}
-          aria-label="Nome do Pokémon"
+          aria-label={t.searchAria}
           onChange={(e) => {
             setQuery(e.target.value)
             setSelected(null)
@@ -132,7 +134,7 @@ export function PokemonSearch({ pokedex, onSubmit, disabled }: Props) {
         </AnimatePresence>
       </div>
       <button type="submit" className="btn btn-primary" disabled={!canSubmit}>
-        Chutar
+        {t.guess}
       </button>
     </form>
   )

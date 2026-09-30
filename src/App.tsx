@@ -4,16 +4,19 @@ import { fetchPokedex, type PokemonEntry } from "./api/pokeapi";
 import { Game } from "./components/Game";
 import { GameSetup } from "./components/GameSetup";
 import { Home } from "./components/Home";
-import { MODE_LABELS, type GameMode } from "./game/modes";
-import { defaultPlayerName, type Player } from "./game/players";
+import { LanguageSwitch } from "./components/LanguageSwitch";
+import type { GameMode } from "./game/modes";
+import type { Player } from "./game/players";
 import type { DexRange } from "./game/ranges";
+import { useI18n } from "./i18n/context";
 import { page } from "./lib/motion";
 import "./App.css";
 
 function App() {
+  const { t } = useI18n();
   const [mode, setMode] = useState<GameMode | null>(null);
   const [pokedex, setPokedex] = useState<PokemonEntry[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [range, setRange] = useState<DexRange | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   // Nomes digitados na última configuração (reaproveitados ao trocar filtro).
@@ -22,12 +25,7 @@ function App() {
   function startGame(nextRange: DexRange, nextPlayers: Player[]) {
     setRange(nextRange);
     setPlayers(nextPlayers);
-    // Nome padrão ("Jogador 2") volta a ser só a dica do campo.
-    setPlayerNames(
-      nextPlayers.map((p, i) =>
-        p.name === defaultPlayerName(i) ? "" : p.name,
-      ),
-    );
+    setPlayerNames(nextPlayers.map((p) => p.name));
   }
 
   function goHome() {
@@ -38,9 +36,7 @@ function App() {
   useEffect(() => {
     fetchPokedex()
       .then(setPokedex)
-      .catch(() =>
-        setError("Não foi possível carregar a Pokédex. Verifique sua conexão."),
-      );
+      .catch(() => setLoadFailed(true));
   }, []);
 
   // Cada tela tem uma chave própria para o AnimatePresence animar a troca.
@@ -49,24 +45,41 @@ function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="app">
-        <AnimatePresence>
-          {mode && (
-            <motion.header
-              className="topbar"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
-              <button className="logo" onClick={goHome}>
+        <header className="topbar">
+          <AnimatePresence>
+            {mode && (
+              <motion.button
+                key="logo"
+                className="logo"
+                onClick={goHome}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
                 PokeRange
-              </button>
-              <span className="mode-badge">{MODE_LABELS[mode]}</span>
-            </motion.header>
-          )}
-        </AnimatePresence>
+              </motion.button>
+            )}
+          </AnimatePresence>
+          <div className="topbar-right">
+            <AnimatePresence>
+              {mode && (
+                <motion.span
+                  key="badge"
+                  className="mode-badge"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  {t.modes[mode]}
+                </motion.span>
+              )}
+            </AnimatePresence>
+            <LanguageSwitch />
+          </div>
+        </header>
 
         <main>
-          {error && <p className="error">{error}</p>}
+          {loadFailed && <p className="error">{t.errors.pokedex}</p>}
           <AnimatePresence mode="wait">
             <motion.div
               key={screen}
@@ -101,7 +114,7 @@ function App() {
         </main>
 
         <footer className="footer">
-          Dados de{" "}
+          {t.dataFrom}{" "}
           <a href="https://pokeapi.co" target="_blank" rel="noreferrer">
             PokéAPI
           </a>
